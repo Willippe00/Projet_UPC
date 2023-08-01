@@ -13,8 +13,8 @@ def execute():
     mon_driver.get("https://www.robotshop.com/")
 
     for code in listeCode:
-        fournisseur, Nom_produit, RB_Code = mon_driver.getCode(code)
-        DataBase.addRbProduct(fournisseur, Nom_produit, RB_Code)
+        fournisseur, Nom_produit, RB_Code, repertoir_path, sku_manifacturier = mon_driver.getCode(code)
+        DataBase.addRbProduct(fournisseur, Nom_produit, RB_Code, repertoir_path,sku_manifacturier)
 
 if __name__ == '__main__':
     #Création de l'instance de la classe driverDataSet

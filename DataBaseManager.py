@@ -41,6 +41,7 @@ class DataBaseManager:
           Code_Rb VARCHAR(255) NOT NULL,
           Path_photo VARCHAR(255) NOT NULL,
           Nom_Fournisseur VARCHAR(255) NOT NULL,
+          Code_Fournisseur VARCHAR(255) NOT NULL,
           PRIMARY KEY (Code_Rb),
           FOREIGN KEY (Nom_Fournisseur) REFERENCES fournisseur(Nom_Fournisseur)
         );
@@ -111,7 +112,7 @@ class DataBaseManager:
 
 
 
-    def addRbProduct(self, fournisseur, Nom_produit, Rb_sku):
+    def addRbProduct(self, fournisseur, Nom_produit, Rb_sku, repertoire_path, code_fournisseur):
 
         #ajouter éventuellment le path de l'image et le sku du founisseur
 
@@ -131,8 +132,8 @@ class DataBaseManager:
                 print("Le produit existe déjà dans la table produit_Rb.")
             else:
                 insert_query = f"""
-                INSERT INTO produit_Rb (Nom, Code_Rb, Path_photo, Nom_Fournisseur)
-                VALUES ('{Nom_produit}', '{Rb_sku}', 'chemin_vers_la_photo', '{fournisseur}');
+                INSERT INTO produit_Rb (Nom, Code_Rb, Path_photo, Nom_Fournisseur, Code_Fournisseur)
+                VALUES ('{Nom_produit}', '{Rb_sku}', '{repertoire_path}', '{fournisseur}','{code_fournisseur}');
                 """
                 print("Le produit n'existe pas dans la table produit_Rb.")
                 try:
