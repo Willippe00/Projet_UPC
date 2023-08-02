@@ -53,16 +53,15 @@ class DataBaseManager:
         CREATE TABLE Correspondances
         (
           Path_photo VARCHAR(255) NOT NULL,
-          Code_UPC INT NOT NULL,
-          Code_EAN INT NOT NULL,
+          Code_UPC VARCHAR(255) NOT NULL,
+          Code_EAN VARCHAR(255) NOT NULL,
           Nom VARCHAR(255) NOT NULL,
           Code_Rb VARCHAR(255) NOT NULL,
           Pourcentage_corespo_image INT NOT NULL,
           Pourcentage_corespo_ponderer INT NOT NULL,
           PRIMARY KEY (Code_UPC),
-          FOREIGN KEY (Code_Rb) REFERENCES produit_Rb(Code_Rb),
-          UNIQUE (Code_EAN)
-        );
+          FOREIGN KEY (Code_Rb) REFERENCES produit_Rb(Code_Rb)
+          );
         """
 
 
@@ -111,6 +110,30 @@ class DataBaseManager:
 
 
 
+    def getproductRB(self, RB_code):
+
+        select_query = f"SELECT * FROM produit_Rb WHERE Code_Rb = '{RB_code}'"
+
+        try:
+            # Exécution de la requête SELECT
+            self.cur.execute(select_query)
+
+            # Récupérer le résultat de la requête
+            produit_existe = self.cur.fetchone()
+
+            print(produit_existe)
+            #print(produit_existe[0])
+            nom = produit_existe[0]
+            Rb_sku = produit_existe[1]
+            Image_path = produit_existe[2]
+            fournisseur = produit_existe[3]
+            fournisseur_sku = produit_existe[4]
+            return nom, Rb_sku, Image_path, fournisseur, fournisseur_sku
+        except psycopg2.Error as e:
+            print("Erreur lors de la recherche du produit :", e)
+            return None
+
+
 
     def addRbProduct(self, fournisseur, Nom_produit, Rb_sku, repertoire_path, code_fournisseur):
 
@@ -119,7 +142,8 @@ class DataBaseManager:
         self.addRbFournisseur(fournisseur)
 
 
-        select_query = f"SELECT * FROM produit_Rb WHERE Code_Rb = '{Rb_sku}'"
+
+        select_query = f"SELECT * FROM produit_Rb WHERE Code_Rb = '{Rb_sku}' "
 
         try:
             # Exécution de la requête SELECT
@@ -149,6 +173,50 @@ class DataBaseManager:
 
         except psycopg2.Error as e:
             print("Erreur lors de la recherche du produit :", e)
+
+    def addCorespondance(self, product, RB_code):
+
+        barcode_produit_raw = product[1].split(" ", 1)
+        barcode_produit = barcode_produit_raw[1]
+
+        select_query = f"SELECT * FROM Correspondances WHERE code_upc = '{barcode_produit}'  or code_ean = '{barcode_produit}'"
+
+        nom_produit = product[0]
+
+        categorie_produit = product[2]
+        image_url_produit = product[3]
+
+
+
+
+        try:
+            # Exécution de la requête SELECT
+            self.cur.execute(select_query)
+
+            # Récupérer le résultat de la requête
+            produit_existe = self.cur.fetchone() is not None
+
+            if produit_existe:
+                print("Le produit existe déjà dans la table correspondance.")
+            else:
+                insert_query = f"""
+                       INSERT INTO Correspondances (Path_photo, Code_UPC, Code_EAN, Nom, Code_Rb, Pourcentage_corespo_image,Pourcentage_corespo_ponderer)
+                       VALUES ('{image_url_produit}','{barcode_produit}','{barcode_produit}', '{nom_produit}', '{RB_code}','{-1}','{-1}');
+                       """
+                print("La correspondance n'existe pas dans la table correspondance.")
+                try:
+                    # Exécution de la requête INSERT
+                    self.cur.execute(insert_query)
+
+                    # Valider les changements dans la base de données
+                    self.conn.commit()
+                    print("Correspondance inséré avec succès dans la table correspondance.")
+
+                except psycopg2.Error as e:
+                    print("Erreur lors de l'insertion de la correspondance :", e)
+
+        except psycopg2.Error as e:
+            print("Erreur lors de la recherche de la croorespondance :", e)
 
 
 
@@ -182,6 +250,8 @@ class DataBaseManager:
 
         except psycopg2.Error as e:
             print("Erreur lors de la recherche du produit :", e)
+
+
 
 
 
@@ -232,4 +302,6 @@ class DataBaseManager:
 if __name__ == '__main__':
     # Création de l'instance de la classe driverDataSet
     Database = DataBaseManager()
-    Database.startTest()
+    produit  = Database.getproductRB("RB-Lyn-316")
+    print("produit")
+    print(produit)

@@ -3,6 +3,11 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from fake_useragent import UserAgent
+from DataBaseManager import DataBaseManager
+import itertools
+
+
 import os
 import urllib.request
 import shutil
@@ -14,12 +19,160 @@ class driverDataSet:
     # Déclaration de la variable de classe
     driverGlobal = None
     url = None
+    driverBarcode = None
+    urlBarcode = "https://www.barcodelookup.com"
+    DataBase = None
 
     def __init__(self):
         # Création du driver Chrome et affectation à la variable d'instance
         self.driver = webdriver.Chrome()
         # Affectation du driver à la variable de classe
         driverDataSet.driverGlobal = self.driver
+        self.initBarcode()
+        self.DataBase = DataBaseManager()
+        self.DataBase.startTest()
+
+
+
+    def initBarcode(self):
+
+
+        # Vérifier si le répertoire existe
+        if os.path.exists("./image/barcode"):
+            try:
+                # Si le répertoire est vide, utilisez os.rmdir()
+                if not os.listdir("./image/barcode"):
+                    os.rmdir("./image/barcode")
+                    print("Répertoire vidé et supprimé avec succès :", "./image/barcode")
+                else:
+                    # Si le répertoire n'est pas vide, utilisez shutil.rmtree() pour le supprimer avec tous les fichiers et sous-répertoires
+                    shutil.rmtree("./image/barcode")
+                    print("Répertoire et son contenu supprimés avec succès :", "./image/barcode")
+            except Exception as e:
+                print("Une erreur est survenue lors de la suppression du répertoire :", e)
+        else:
+            print("Le répertoire spécifié n'existe pas.")
+
+    def CreerDictionnaire(self, RB_product):
+
+        nom, Rb_sku, Image_path, fournisseur, fournisseur_sku = self.DataBase.getproductRB(RB_product)
+
+        dictionnaire = []
+
+        if nom == None:
+            return []
+        else:
+            dictionnaire.append(fournisseur_sku)
+            dictionnaire.append(fournisseur_sku + fournisseur)
+            dictionnaire.append(fournisseur)
+            dictionnaire.append(Rb_sku)
+
+            dictionnaire.append(nom.split('(', 1)[0])
+
+            dictionnaire.extend(self.recombinaison_paquets(nom))
+
+            print("dictionnaire")
+            print(dictionnaire)
+
+
+            return dictionnaire
+
+    def recombinaison_paquets(self, Rb_code):
+        # Séparation de la chaîne en mots
+        mots = Rb_code.split()
+
+        # Vérification du nombre de mots pour s'assurer qu'il y en a au moins 3
+        if len(mots) < 4:
+            return []
+
+        # Séparer les mots en paquets de 4
+        paquets = [mots[i:i + 4] for i in range(0, len(mots), 4)]
+
+        # Générer toutes les permutations des paquets
+        permutations_paquets = list(itertools.permutations(paquets))
+
+        # Rejoindre les mots pour former les chaînes possibles
+        chaines_possibles = [' '.join(itertools.chain.from_iterable(permutation)) for permutation in
+                             permutations_paquets]
+
+        return chaines_possibles
+
+    def getCorespondance(self, RB_product):
+        dictionnaire = self.CreerDictionnaire(RB_product)
+
+        for mot in dictionnaire:
+            #corespondances = []
+            #corespondances.extend(self.getCorespondanceBarcode(mot))
+            self.addCorespondanceDatabase(self.getCorespondanceBarcode(mot),RB_product)
+
+
+
+
+    def addCorespondanceDatabase(self, corespondances, RB_product):
+
+        for corespondance in corespondances:
+            self.DataBase.addCorespondance(corespondance, RB_product)
+    def getCorespondanceBarcode(self, recherche):
+
+        # Générer un User-Agent aléatoire
+        user_agent = UserAgent()
+        user_agent_string = user_agent.random
+
+        # Créer les options de Chrome avec le User-Agent aléatoire
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument(f"user-agent={user_agent_string}")
+
+        self.driverBarcode = webdriver.Chrome(options=chrome_options)
+
+
+        self.driverBarcode.get(self.urlBarcode + "/"+recherche)
+        time.sleep(2)
+
+
+        elements = self.driverBarcode.find_elements(By.CSS_SELECTOR,"#product-search-results li")
+
+
+        produits = []
+        for element in elements:
+
+            #url = element.find_element(By.CSS_SELECTOR,"a").get_attribute("href")
+            nom = element.find_element(By.CSS_SELECTOR,".product-search-item-text p:nth-of-type(1)").text
+            barcode = element.find_element(By.CSS_SELECTOR,".product-search-item-text p:nth-of-type(2)").text
+            categorie = element.find_element(By.CSS_SELECTOR,".product-search-item-text p:nth-of-type(3)").text
+            try:
+               fabricant = element.find_element(By.CSS_SELECTOR,".product-search-item-text p:nth-of-type(4)").text # possibiliter de fabricant absent mettre un try
+            except Exception as e:
+                print("pas de fabricant ")
+            image_url = element.find_element(By.CSS_SELECTOR,".product-search-item-img img").get_attribute("src")
+
+            produit = {
+                'nom': nom,
+                'barcode': barcode,
+                'categorie': categorie,
+                'image_url': image_url
+            }
+
+            produit = []
+            produit.append(nom)
+            produit.append(barcode)
+            produit.append(categorie)
+            produit.append(image_url)
+
+            print("nom")
+            print(nom)
+
+
+
+            produits.append(produit)
+        self.driverBarcode.quit()
+        print("sleep")
+        time.sleep(1)
+        print("on repart")
+        return produits
+
+
+
+
 
 
 
@@ -130,12 +283,7 @@ class driverDataSet:
         print("sku_manifacture")
         print(sku_manifacture)
 
-
-
-
-
-
-
+        self.DataBase.addRbProduct(vendor, product_title, sku, repertoire_local, sku_manifacture)
         return vendor, product_title, sku, repertoire_local, sku_manifacture
 
 
