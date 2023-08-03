@@ -57,8 +57,8 @@ class DataBaseManager:
           Code_EAN VARCHAR(255) NOT NULL,
           Nom VARCHAR(255) NOT NULL,
           Code_Rb VARCHAR(255) NOT NULL,
-          Pourcentage_corespo_image INT NOT NULL,
-          Pourcentage_corespo_ponderer INT NOT NULL,
+          Pourcentage_corespo_image FLOAT NOT NULL,
+          Pourcentage_corespo_ponderer FLOAT NOT NULL,
           PRIMARY KEY (Code_UPC),
           FOREIGN KEY (Code_Rb) REFERENCES produit_Rb(Code_Rb)
           );
@@ -133,6 +133,21 @@ class DataBaseManager:
             print("Erreur lors de la recherche du produit :", e)
             return None
 
+    def getCorespondanceDatabase(self, RB_product):
+        select_query = f"SELECT * FROM Correspondances WHERE Code_Rb = '{RB_product}' "
+        try:
+            # Exécution de la requête SELECT
+            self.cur.execute(select_query)
+
+            # Récupérer le résultat de la requête
+            corespondances = self.cur.fetchall()
+
+            return corespondances
+
+        except psycopg2.Error as e:
+            print("Erreur lors de la recherche du produit :", e)
+            return None
+
 
 
     def addRbProduct(self, fournisseur, Nom_produit, Rb_sku, repertoire_path, code_fournisseur):
@@ -179,9 +194,10 @@ class DataBaseManager:
         barcode_produit_raw = product[1].split(" ", 1)
         barcode_produit = barcode_produit_raw[1]
 
-        select_query = f"SELECT * FROM Correspondances WHERE code_upc = '{barcode_produit}'  or code_ean = '{barcode_produit}'"
+        select_query = f"SELECT * FROM Correspondances WHERE code_upc = '{barcode_produit}'  or code_ean = '{barcode_produit}'and Code_Rb = '{RB_code}'"
 
-        nom_produit = product[0]
+        nom_produit_raw = product[0]
+        nom_produit = nom_produit_raw.replace("'", " ")
 
         categorie_produit = product[2]
         image_url_produit = product[3]
@@ -291,6 +307,11 @@ class DataBaseManager:
             print(f"Colonne 1 : {colonne1_value}")
         print("----------")
 
+    def modifier_pourcentage_corespondance(self,RB_code, code_upc, nouveau_pourcentage_ponderer, ouveau_pourcentage_image):
+
+        sql_query = f"UPDATE Correspondances SET Pourcentage_corespo_ponderer = '{nouveau_pourcentage_ponderer}', Pourcentage_corespo_image ='{ouveau_pourcentage_image}' WHERE Code_UPC = '{code_upc}' and Code_Rb = '{RB_code}' "
+        self.cur.execute(sql_query)
+        self.conn.commit()
 
 
 

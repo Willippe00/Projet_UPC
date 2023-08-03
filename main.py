@@ -1,5 +1,6 @@
 from driverDataSet import driverDataSet
 from explorateurTableur import explorateurTableur
+from traitementDonnée import  traitementDonnée
 
 import time
 
@@ -15,24 +16,18 @@ def execute():
         fournisseur, Nom_produit, RB_Code, repertoir_path, sku_manifacturier = mon_driver.getCode(code)
 
         mon_driver.getCorespondance(RB_Code)
+        analyseDonnée.analyseCorespondance(RB_Code)
+        #mon_driver.analyseCorespondance(RB_Code)
 
 if __name__ == '__main__':
     #Création de l'instance de la classe driverDataSet
     mon_driver = driverDataSet()
     Tableur = explorateurTableur()
+    analyseDonnée = traitementDonnée()
 
     listeCode = Tableur.parcourir(1,5)
 
-    #mon_driver.getCorespondanceBarcode("bague")
-    #mon_driver.getCorespondanceBarcode("pinpin")
-    #mon_driver.getCorespondanceBarcode("philoupidoupidou")
-    #mon_driver.getCorespondance("DFRobot")
 
-
-
-
-
-    #DataBase.test("miron")
     execute()
 
 

@@ -5,7 +5,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from fake_useragent import UserAgent
 from DataBaseManager import DataBaseManager
-import itertools
+
+from  traitementDonnée import traitementDonnée
 
 
 import os
@@ -22,6 +23,7 @@ class driverDataSet:
     driverBarcode = None
     urlBarcode = "https://www.barcodelookup.com"
     DataBase = None
+    traitementDonnéeInstance = None
 
     def __init__(self):
         # Création du driver Chrome et affectation à la variable d'instance
@@ -31,6 +33,8 @@ class driverDataSet:
         self.initBarcode()
         self.DataBase = DataBaseManager()
         self.DataBase.startTest()
+        self.traitementDonnéeInstance = traitementDonnée()
+
 
 
 
@@ -53,57 +57,26 @@ class driverDataSet:
         else:
             print("Le répertoire spécifié n'existe pas.")
 
-    def CreerDictionnaire(self, RB_product):
-
-        nom, Rb_sku, Image_path, fournisseur, fournisseur_sku = self.DataBase.getproductRB(RB_product)
-
-        dictionnaire = []
-
-        if nom == None:
-            return []
-        else:
-            dictionnaire.append(fournisseur_sku)
-            dictionnaire.append(fournisseur_sku + fournisseur)
-            dictionnaire.append(fournisseur)
-            dictionnaire.append(Rb_sku)
-
-            dictionnaire.append(nom.split('(', 1)[0])
-
-            dictionnaire.extend(self.recombinaison_paquets(nom))
-
-            print("dictionnaire")
-            print(dictionnaire)
 
 
-            return dictionnaire
 
-    def recombinaison_paquets(self, Rb_code):
-        # Séparation de la chaîne en mots
-        mots = Rb_code.split()
 
-        # Vérification du nombre de mots pour s'assurer qu'il y en a au moins 3
-        if len(mots) < 4:
-            return []
 
-        # Séparer les mots en paquets de 4
-        paquets = [mots[i:i + 4] for i in range(0, len(mots), 4)]
 
-        # Générer toutes les permutations des paquets
-        permutations_paquets = list(itertools.permutations(paquets))
-
-        # Rejoindre les mots pour former les chaînes possibles
-        chaines_possibles = [' '.join(itertools.chain.from_iterable(permutation)) for permutation in
-                             permutations_paquets]
-
-        return chaines_possibles
 
     def getCorespondance(self, RB_product):
-        dictionnaire = self.CreerDictionnaire(RB_product)
+        dictionnaire = self.traitementDonnéeInstance.CreerDictionnaire(RB_product)
 
         for mot in dictionnaire:
-            #corespondances = []
-            #corespondances.extend(self.getCorespondanceBarcode(mot))
+
             self.addCorespondanceDatabase(self.getCorespondanceBarcode(mot),RB_product)
+
+
+
+
+
+
+
 
 
 
@@ -138,11 +111,17 @@ class driverDataSet:
             #url = element.find_element(By.CSS_SELECTOR,"a").get_attribute("href")
             nom = element.find_element(By.CSS_SELECTOR,".product-search-item-text p:nth-of-type(1)").text
             barcode = element.find_element(By.CSS_SELECTOR,".product-search-item-text p:nth-of-type(2)").text
-            categorie = element.find_element(By.CSS_SELECTOR,".product-search-item-text p:nth-of-type(3)").text
+            try:
+
+              categorie = element.find_element(By.CSS_SELECTOR,".product-search-item-text p:nth-of-type(3)").text
+            except Exception as e:
+                print("pas de fabricant ")
+                categorie = None
             try:
                fabricant = element.find_element(By.CSS_SELECTOR,".product-search-item-text p:nth-of-type(4)").text # possibiliter de fabricant absent mettre un try
             except Exception as e:
                 print("pas de fabricant ")
+                fabricant = None
             image_url = element.find_element(By.CSS_SELECTOR,".product-search-item-img img").get_attribute("src")
 
             produit = {
@@ -269,7 +248,7 @@ class driverDataSet:
            print(lien_photo)
 
            if lien_photo:
-                nom_fichier = os.path.join(repertoire_local,"image "+index.__str__())  # Remplacez "nom_image.jpg" par le nom souhaité
+                nom_fichier = os.path.join(repertoire_local,"image_"+index.__str__()+".png")  # Remplacez "nom_image.jpg" par le nom souhaité
                 urllib.request.urlretrieve(lien_photo, nom_fichier)
                 print("Image téléchargée et enregistrée avec succès :", nom_fichier)
                 index = index +1
