@@ -90,6 +90,7 @@ class driverDataSet:
         # Générer un User-Agent aléatoire
         user_agent = UserAgent()
         user_agent_string = user_agent.random
+        #user_agent.chrome
 
         # Créer les options de Chrome avec le User-Agent aléatoire
         chrome_options = webdriver.ChromeOptions()

@@ -4,6 +4,7 @@ from skimage import io
 from skimage.metrics import structural_similarity as ssim
 import os
 import urllib.request
+from skimage.transform import resize
 import shutil
 class traitementDonnée:
     DataBase = None
@@ -21,7 +22,7 @@ class traitementDonnée:
             return []
         else:
             dictionnaire.append(fournisseur_sku)
-            dictionnaire.append(fournisseur_sku + fournisseur)
+            dictionnaire.append(fournisseur_sku + " "+fournisseur)
             dictionnaire.append(fournisseur)
             dictionnaire.append(Rb_sku)
 
@@ -92,7 +93,7 @@ class traitementDonnée:
             self.DataBase.modifier_pourcentage_corespondance(RB_product, corespondance[1],pourcentage_titre, -1)
 
             if pourcentage_titre > 20:
-                repertoire_local = "./image/barcode/"+RB_product +"/"+ corespondance[1]+".png"
+                repertoire_local = "./image/barcode/"+RB_product +"/"+ corespondance[1]
                 #pourcentage_image = self.traitement_image(RB_product)
 
                 if not os.path.exists(repertoire_local):
@@ -105,6 +106,7 @@ class traitementDonnée:
                 else:
                     print("Impossible de trouver l'URL de l'image.")
                 pourcentage_image = self.traitement_image(RB_product,corespondance[1])
+
                 self.DataBase.modifier_pourcentage_corespondance(RB_product, corespondance[1], pourcentage_titre, pourcentage_image)
 
     def retirer_mots_deux_lettres(self, chaine):
@@ -137,6 +139,9 @@ class traitementDonnée:
         image_path_Rb = Image_path
         image_path_UPC = "./image/barcode/"+RB_code+"/"+code_upc
 
+        print(image_path_Rb)
+        print(image_path_UPC)
+
         maxvalue = 0
 
         try:
@@ -145,10 +150,44 @@ class traitementDonnée:
             for file_path in files:
                 print(file_path)
                 image_Rb = io.imread(file_path)  # Lire l'image à partir du chemin de fichier
-                image_UPC = io.imread(image_path_UPC+"/"+code_upc+".png")  # Lire l'autre image
-                valeur_ssim, _ = ssim(image_Rb, image_UPC, full=True)
+                image_UPC = io.imread(image_path_UPC+"/"+code_upc)  # Lire l'autre image
+
+                # Déterminer les dimensions des images RB et UPC
+                shape_Rb = image_Rb.shape
+                #print(shape_Rb)
+                shape_UPC = image_UPC.shape
+                #print(shape_UPC)
+
+                # Vérifier si les images ont déjà la même dimension
+                if shape_Rb == shape_UPC:
+                    image_Rb_resized = image_Rb
+                    image_UPC_resized = image_UPC
+                else:
+                    # Redimensionner l'image UPC en fonction de la plus petite image (RB ou UPC)
+                    if shape_Rb[0] < shape_UPC[0] or shape_Rb[1] < shape_UPC[1]:
+                        # Si l'image RB est plus petite, redimensionner l'image UPC
+                        image_Rb_resized = resize(image_Rb, (shape_UPC[0], shape_UPC[1]), anti_aliasing=True)
+                        image_UPC_resized = image_UPC
+                    else:
+                        # Si l'image UPC est plus petite, redimensionner l'image RB
+                        image_Rb_resized = image_Rb
+                        image_UPC_resized = resize(image_UPC, (shape_Rb[0], shape_Rb[1]), anti_aliasing=True)
+
+                # Déterminer la taille de la fenêtre en fonction de la plus petite dimension de l'image redimensionnée
+                win_size = min(image_Rb_resized.shape[0], image_Rb_resized.shape[1])
+                win_size = min(win_size, 9)  # Assurer que la taille de la fenêtre est au maximum 7 (valeur impaire)
+
+                shape_Rb_resized = image_Rb_resized.shape
+                #print(shape_Rb_resized)
+                shape_UPC_resized = image_UPC_resized.shape
+                #print(shape_UPC_resized)
+
+                valeur_ssim, _ = ssim(image_Rb_resized, image_UPC_resized, win_size=win_size, full=True, channel_axis=2, data_range=255)
+
+
                 if valeur_ssim > maxvalue:
                     maxvalue = valeur_ssim
+                    resized_images = [image_Rb_resized, image_UPC_resized]
 
 
         except ValueError as e:
@@ -171,3 +210,11 @@ class traitementDonnée:
                 file_paths.append(file_path)
         return file_paths
 
+if __name__ == '__main__':
+    #Création de l'instance de la classe driverDataSet
+
+    analyseDonnée = traitementDonnée()
+
+    pourcentage_image = analyseDonnée.traitement_image("RB-Lyn-316", "993246378203")
+    print("pourcentage image :")
+    print(pourcentage_image)
