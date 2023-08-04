@@ -1,6 +1,7 @@
 from driverDataSet import driverDataSet
 from explorateurTableur import explorateurTableur
 from traitementDonnée import  traitementDonnée
+from presentationResultas import presentationResultas
 
 import time
 
@@ -17,6 +18,7 @@ def execute():
 
         mon_driver.getCorespondance(RB_Code)
         analyseDonnée.analyseCorespondance(RB_Code)
+        maprésentation.présenterCorespondance(RB_Code)
         #mon_driver.analyseCorespondance(RB_Code)
 
 if __name__ == '__main__':
@@ -24,6 +26,7 @@ if __name__ == '__main__':
     mon_driver = driverDataSet()
     Tableur = explorateurTableur()
     analyseDonnée = traitementDonnée()
+    maprésentation = presentationResultas()
 
     listeCode = Tableur.parcourir(1,5)
 

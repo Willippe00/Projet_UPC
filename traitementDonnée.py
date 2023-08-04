@@ -92,7 +92,7 @@ class traitementDonnée:
 
             self.DataBase.modifier_pourcentage_corespondance(RB_product, corespondance[1],pourcentage_titre, -1)
 
-            if pourcentage_titre > 20:
+            if pourcentage_titre >= 20:
                 repertoire_local = "./image/barcode/"+RB_product +"/"+ corespondance[1]
                 #pourcentage_image = self.traitement_image(RB_product)
 

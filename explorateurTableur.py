@@ -49,3 +49,5 @@ class explorateurTableur:
     def parcourirAll(self):
         max = self.parser.get_max_rows()
         return self.parcourir(0,max)
+
+
