@@ -5,6 +5,8 @@ from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import PatternFill
 from openpyxl.drawing.image import Image
+from openpyxl.utils.cell import coordinate_from_string
+from openpyxl.styles import Alignment
 
 class presentationResultas:
     nom_fichier = "./sortie.xlsx"
@@ -77,8 +79,11 @@ class presentationResultas:
                 ws.column_dimensions[
                     lettre_colonne].width = image.width / 7.5  # Vous pouvez ajuster le coefficient en fonction de vos besoins
 
-                cellule_hypelien = ws.cell(row=y + 2, column=x)
-                cellule_hypelien.value = "https://www.barcodelookup.com/"+résulta[1]
+                cellule_hyperlien = ws.cell(row=y + 2, column=x)
+                cellule_hyperlien.value = "https://www.barcodelookup.com/"+résulta[1]
+                cellule_hyperlien.hyperlink = "https://www.barcodelookup.com/"+résulta[1]
+                cellule_hyperlien.style = "Hyperlink"
+                cellule_hyperlien.alignment = Alignment(wrap_text=True)
 
             print("pourcentage pondérer")
             print(résulta[6])
@@ -86,12 +91,27 @@ class presentationResultas:
             print(résulta[5])
             print("--------------------------------------------")
 
+
         # Ajuster la largeur de chaque colonne de B à K pour que le texte s'affiche entièrement
-        for colonne_index in range(2, 12):  # Colonnes B à K
+        for colonne_index in range(2, 30):  # Colonnes B à K
             lettre_colonne = get_column_letter(colonne_index)
             largeur_texte = max(len("2050002398634") for cellule in ws[f'{lettre_colonne}'])
             colonne = ws.column_dimensions[lettre_colonne]
             colonne.width = largeur_texte + 2
+
+        # Coordonnées de la cellule libre
+        x = 14
+        y = cellule_libre.row
+
+        cellule_image_positif = ws.cell(row=y + 1, column=x)
+
+        nom, Rb_sku, Image_path, fournisseur, fournisseur_sku = self.DataBase.getproductRB(RB_procuct)
+        image_positif = Image("./image/Rb/" + fournisseur + "/" + Rb_sku + "/image_1.png")
+        image_positif.width = 100
+        image_positif.height = 100
+
+        # Insérer l'image en spécifiant les coordonnées de la cellule libre
+        ws.add_image(image_positif, f'{cellule_image_positif.column_letter}{cellule_image_positif.row}')
 
         wb.save(self.nom_fichier)
 
