@@ -36,7 +36,7 @@ class presentationResultas:
 
         cellule = ws['A1']  # Départ à la cellule A1
         while cellule.value is not None:
-            print(cellule.value)  # Faites ici ce que vous voulez avec la valeur de la cellule
+            print(cellule.value)
             cellule = ws.cell(row=cellule.row + 1, column=1)
 
         cellule_origine = cellule
@@ -47,6 +47,8 @@ class presentationResultas:
         ws.cell(row=cellule_origine.row + 3, column=1).value = "hyperlien"
 
         résultas_trier = self.récupérerCorespondance(RB_procuct)
+
+        cellule_libre = self.trouver_premiere_cellule_vide_dans_rangée(ws, 1)
 
         for résulta in résultas_trier:
             numéro_ranger = cellule_origine.row + 1
@@ -64,20 +66,22 @@ class presentationResultas:
                 y = cellule_libre.row
 
                 cellule_image = ws.cell(row=y + 1, column=x)
-                image = Image("./image/barcode/"+RB_procuct+"/"+résulta[1]+"/"+résulta[1] )
-                image.width = 100
-                image.height = 100
+                try:
+                  image = Image("./image/barcode/"+RB_procuct+"/"+résulta[1]+"/"+résulta[1] )
+                  image.width = 100
+                  image.height = 100
 
-                # Insérer l'image en spécifiant les coordonnées de la cellule libre
-                ws.add_image(image, f'{cellule_image.column_letter}{cellule_image.row}')
+                  # Insérer l'image en spécifiant les coordonnées de la cellule libre
+                  ws.add_image(image, f'{cellule_image.column_letter}{cellule_image.row}')
 
-                # Ajuster la hauteur de la rangée pour qu'elle corresponde à la hauteur de l'image
-                ws.row_dimensions[cellule_image.row].height = image.height
+                  # Ajuster la hauteur de la rangée pour qu'elle corresponde à la hauteur de l'image
+                  ws.row_dimensions[cellule_image.row].height = image.height
 
-                # Ajuster la largeur de la colonne pour qu'elle corresponde à la largeur de l'image
-                lettre_colonne = get_column_letter(cellule_image.column)
-                ws.column_dimensions[
-                    lettre_colonne].width = image.width / 7.5  # Vous pouvez ajuster le coefficient en fonction de vos besoins
+                  # Ajuster la largeur de la colonne pour qu'elle corresponde à la largeur de l'image
+                  lettre_colonne = get_column_letter(cellule_image.column)
+                  ws.column_dimensions[lettre_colonne].width = image.width / 7.5  # Vous pouvez ajuster le coefficient en fonction de vos besoins
+                except Exception as e:
+                  print("pas de d'image ")
 
                 cellule_hyperlien = ws.cell(row=y + 2, column=x)
                 cellule_hyperlien.value = "https://www.barcodelookup.com/"+résulta[1]
@@ -164,6 +168,6 @@ class presentationResultas:
 if __name__ == "__main__":
     # Création de l'instance de la classe driverDataSet
     maprésentation = presentationResultas()
-    maprésentation.présenterCorespondance("RB-Ard-112")
+    maprésentation.présenterCorespondance("RB-Ada-09")
     maprésentation.présenterCorespondance("RB-Lyn-17")
 

@@ -91,21 +91,28 @@ class traitementDonnée:
             print()
 
             self.DataBase.modifier_pourcentage_corespondance(RB_product, corespondance[1],pourcentage_titre, -1)
+            pourcentage_image = -1
 
             if pourcentage_titre >= 20:
-                repertoire_local = "./image/barcode/"+RB_product +"/"+ corespondance[1]
-                #pourcentage_image = self.traitement_image(RB_product)
+                repertoire_local = "./image/barcode/" + RB_product + "/" + corespondance[1]
+                try:
+                    if not os.path.exists(repertoire_local):
+                        os.makedirs(repertoire_local)
 
-                if not os.path.exists(repertoire_local):
-                    os.makedirs(repertoire_local)
+                    if corespondance[0]:
+                        nom_fichier = os.path.join(repertoire_local, corespondance[1])
+                        urllib.request.urlretrieve(corespondance[0], nom_fichier)
+                        print("Image téléchargée et enregistrée avec succès :", nom_fichier)
 
-                if corespondance[0]:
-                    nom_fichier = os.path.join(repertoire_local, corespondance[1])
-                    urllib.request.urlretrieve(corespondance[0], nom_fichier)
-                    print("Image téléchargée et enregistrée avec succès :", nom_fichier)
-                else:
-                    print("Impossible de trouver l'URL de l'image.")
-                pourcentage_image = self.traitement_image(RB_product,corespondance[1])
+                        # Lancer l'analyse de l'image uniquement si le téléchargement a réussi
+                        pourcentage_image = self.traitement_image(RB_product, corespondance[1])
+
+
+                    else:
+                        print("Impossible de trouver l'URL de l'image.")
+                        pourcentage_image = -1
+                except Exception as e:
+                    print("Une erreur s'est produite lors du téléchargement de l'image :", str(e))
 
                 self.DataBase.modifier_pourcentage_corespondance(RB_product, corespondance[1], pourcentage_titre, pourcentage_image)
 

@@ -15,10 +15,10 @@ def execute():
 
     for code in listeCode:
         fournisseur, Nom_produit, RB_Code, repertoir_path, sku_manifacturier = mon_driver.getCode(code)
-
-        mon_driver.getCorespondance(RB_Code)
-        analyseDonnée.analyseCorespondance(RB_Code)
-        maprésentation.présenterCorespondance(RB_Code)
+        if (Nom_produit != None) & (RB_Code == code):
+          mon_driver.getCorespondance(RB_Code)
+          analyseDonnée.analyseCorespondance(RB_Code)
+          maprésentation.présenterCorespondance(RB_Code)
         #mon_driver.analyseCorespondance(RB_Code)
 
 if __name__ == '__main__':
@@ -28,7 +28,7 @@ if __name__ == '__main__':
     analyseDonnée = traitementDonnée()
     maprésentation = presentationResultas()
 
-    listeCode = Tableur.parcourir(1,5)
+    listeCode = Tableur.parcourir(30,33)
 
 
     execute()

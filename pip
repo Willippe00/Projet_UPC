@@ -1,0 +1,9 @@
+selenium
+fake_useragent
+psycopg2
+DataBaseManager
+openpyxl
+itertools
+skimage
+urllib
+shutil

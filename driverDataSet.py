@@ -102,9 +102,11 @@ class driverDataSet:
         self.driverBarcode.get(self.urlBarcode + "/"+recherche)
         time.sleep(2)
 
-
-        elements = self.driverBarcode.find_elements(By.CSS_SELECTOR,"#product-search-results li")
-
+        try:
+          elements = self.driverBarcode.find_elements(By.CSS_SELECTOR,"#product-search-results li")
+        except Exception as e:
+          print("produit RB inactif")
+          return None, None, None, None, None
 
         produits = []
         for element in elements:
@@ -145,9 +147,9 @@ class driverDataSet:
 
             produits.append(produit)
         self.driverBarcode.quit()
-        print("sleep")
+        print("pause")
         time.sleep(1)
-        print("on repart")
+        print("lancement chrome")
         return produits
 
 
@@ -186,7 +188,6 @@ class driverDataSet:
         barRecherche = self.driver.find_element(By.NAME, "q")
         barRecherche.clear()
         barRecherche.send_keys(Rbcode)
-        #barRecherche.send_keys(Keys.RETURN)
         time.sleep(1)
 
         boutonRecher = self.driver.find_element(By.XPATH, "//button[@class='search-bar__submit']")
@@ -204,8 +205,8 @@ class driverDataSet:
         vendor = div_element.find_element(By.CSS_SELECTOR,"a.boost-pfs-filter-product-item-vendor").text
         product_title = div_element.find_element(By.CSS_SELECTOR,"a.boost-pfs-filter-product-item-title").text
         sku = div_element.find_element(By.CSS_SELECTOR,"p.sku-label").text
-        price = div_element.find_element(By.CSS_SELECTOR,"span.boost-pfs-filter-product-item-regular-price").text
-        inventory = div_element.find_element(By.CSS_SELECTOR,"span.product-item__inventory").text
+        #price = div_element.find_element(By.CSS_SELECTOR,"span.boost-pfs-filter-product-item-regular-price").text
+        #inventory = div_element.find_element(By.CSS_SELECTOR,"span.product-item__inventory").text
 
         sku = sku.split(":", 1)[1].strip()
 
@@ -221,19 +222,12 @@ class driverDataSet:
         print("Vendeur :", vendor)
         print("Titre du produit :", product_title)
         print("SKU :", sku)
-        print("Prix :", price)
-        print("Stock :", inventory)
         print("---------------------------------")
-        #eventuellement enregistre l'image répertoire local en .png et récuper sku du fabricant
 
         div_element.find_element(By.CSS_SELECTOR, "a.boost-pfs-filter-product-item-vendor").click()
 
 
-
-
-
         time.sleep(1)
-
 
 
         # Rechercher l'élément a contenant le lien
@@ -243,8 +237,7 @@ class driverDataSet:
 
 
         for element in elements:
-            # Faites ici ce que vous voulez avec chaque élément, par exemple, afficher l'URL de l'image :
-            #element.get_attribute("")
+
            lien_photo = element.get_attribute("href")
            print(lien_photo)
 
@@ -273,6 +266,5 @@ if __name__ == "__main__":
     # Création de l'instance de la classe driverDataSet
     mon_driver = driverDataSet()
 
-    # Utilisation de la méthode get pour ouvrir http://www.google.com
 
 

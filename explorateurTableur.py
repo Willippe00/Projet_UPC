@@ -34,7 +34,7 @@ class explorateurTableur:
 
     def __init__(self):
         self.parser = ExcelParser("./sheet01.xlsx")
-        self.parser.select_sheet("Feuil1")
+        self.parser.select_sheet("Sheet1")
         print("la feuille a été trouver")
 
     def parcourir(self, min, max):
