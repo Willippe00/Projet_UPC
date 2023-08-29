@@ -33,7 +33,7 @@ class ExcelParser:
 class explorateurTableur:
 
     def __init__(self):
-        self.parser = ExcelParser("./sheet01.xlsx")
+        self.parser = ExcelParser('C:/Users/William/Desktop/Unis Will/Projet Perso/Barcode/git/Projet_UPC/sheet01.xlsx')
         self.parser.select_sheet("Sheet1")
         print("la feuille a été trouver")
 

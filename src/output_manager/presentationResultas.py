@@ -1,11 +1,10 @@
-from DataBaseManager import DataBaseManager
+from git.Projet_UPC.Database.DataBaseManager import DataBaseManager
 import os
 from openpyxl import Workbook
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import PatternFill
 from openpyxl.drawing.image import Image
-from openpyxl.utils.cell import coordinate_from_string
 from openpyxl.styles import Alignment
 
 class presentationResultas:

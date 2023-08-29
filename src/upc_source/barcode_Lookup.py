@@ -4,9 +4,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from fake_useragent import UserAgent
-from DataBaseManager import DataBaseManager
+from git.Projet_UPC.Database.DataBaseManager import DataBaseManager
 
-from  traitementDonnée import traitementDonnée
+from  git.Projet_UPC.src.Data_processing.traitementDonnée import traitementDonnée
 
 
 import os
@@ -265,6 +265,4 @@ class driverDataSet:
 if __name__ == "__main__":
     # Création de l'instance de la classe driverDataSet
     mon_driver = driverDataSet()
-
-
 

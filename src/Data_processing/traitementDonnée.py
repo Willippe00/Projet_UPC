@@ -1,11 +1,12 @@
-from DataBaseManager import DataBaseManager
+from git.Projet_UPC.Database.DataBaseManager import DataBaseManager
 import itertools
 from skimage import io
 from skimage.metrics import structural_similarity as ssim
 import os
 import urllib.request
 from skimage.transform import resize
-import shutil
+
+
 class traitementDonnée:
     DataBase = None
 

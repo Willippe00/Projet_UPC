@@ -1,7 +1,7 @@
-from driverDataSet import driverDataSet
-from explorateurTableur import explorateurTableur
-from traitementDonnée import  traitementDonnée
-from presentationResultas import presentationResultas
+from git.Projet_UPC.src.upc_source.barcode_Lookup import driverDataSet
+from git.Projet_UPC.src.impute_manger.explorateurTableur import explorateurTableur
+from git.Projet_UPC.src.Data_processing.traitementDonnée import  traitementDonnée
+from git.Projet_UPC.src.output_manager.presentationResultas import presentationResultas
 
 import time
 
