@@ -1,4 +1,4 @@
-Python Project: Barcode Lookup Automation on UPCBarcodeLookup
+#Python Project: Barcode Lookup Automation on UPCBarcodeLookup
 Project Overview
 This project was undertaken during my personal time with the primary goal of automating a recurring task at work: the search for barcodes on the UPCBarcodeLookup website.
 
@@ -14,10 +14,10 @@ Dictionary Comparison: To process the results, a dictionary comparison system ha
 Final Report: Upon processing, an automated report is generated in Excel format. This report displays match percentages based on different metrics.
 
 Prerequisites
-Python 3.x
-Python Modules: selenium, psycopg2, openpyxl, PIL (or Pillow), among others.
+Python 3.10
+Python Modules: selenium, psycopg2, openpyxl, PIL, among others.
 PostgreSQL set up and configured
-Compatible driver for Selenium (e.g., ChromeDriver for Chrome)
+Compatible driver for Selenium ChromeDriver for Chrome
 Installation
 Clone this repository to your local environment.
 Install the required Python dependencies using pip install -r requirements.txt (ensure you have a virtual environment activated if needed).
