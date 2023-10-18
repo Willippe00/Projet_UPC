@@ -15,7 +15,7 @@ Final Report: Upon processing, an automated report is generated in Excel format.
 
 Prerequisites
 Python 3.10
-Python Modules: selenium, psycopg2, openpyxl, PIL, among others.
+Python Modules: selenium, psycopg2, skimage, among others.
 PostgreSQL set up and configured
 Compatible driver for Selenium ChromeDriver for Chrome
 Installation
